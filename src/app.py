@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Character
 #from models import Person
 
 app = Flask(__name__)
@@ -37,13 +37,47 @@ def sitemap():
     return generate_sitemap(app)
 
 @app.route('/user', methods=['GET'])
-def handle_hello():
+def get_user():
+    all_users = User.query.all()
+    users = list(map(lambda user: user.serialize(),all_users))
+    return jsonify(users), 200
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
+@app.route("/user/", methods=["POST"])
+def create_user():
+    data = request.get_json()
+    user = User(
+        name=data.get("name"),
+        email=data.get("email")
+    )
+    db.session.add(user)
+    db.session.commit()
+    return jsonify(user.serialize()), 200
 
-    return jsonify(response_body), 200
+@app.route("/user/<int:id>")
+def user_detail(id):
+    user = db.get_or_404(User, id)
+    return render_template("user/detail.html", user=user)
+
+@app.route("/user/<int:id>/delete", methods=["GET", "POST"])
+def user_delete(id):
+    user = db.get_or_404(User, id)
+
+    if request.method == "POST":
+        db.session.delete(user)
+        db.session.commit()
+        return redirect(url_for("user_list"))
+
+    return render_template("user/delete.html", user=user)
+
+
+@app.route('/character', methods=['GET'])
+def get_character():
+
+    all_characters = Character.query.all()
+    characters = list(map(lambda character: character.serialize(),all_characters))
+    return jsonify(characters), 200
+
+
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
