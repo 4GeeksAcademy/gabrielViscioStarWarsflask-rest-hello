@@ -45,7 +45,7 @@ class Vehicle(db.Model):
     __tablename__ = 'vehicle'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
-    model = db.Column(db.String(250))  # Cambié 'modelo' a 'model' para consistencia en inglés
+    model = db.Column(db.String(250)) 
     max_speed = db.Column(db.Integer)
 
     # Relación con la tabla Favourite
@@ -82,9 +82,9 @@ class Planet(db.Model):
 class Favourite(db.Model):
     __tablename__ = 'favourite'
     id = db.Column(db.Integer, primary_key=True)
-    character_id = db.Column(db.Integer, db.ForeignKey('character.id'))
-    vehicle_id = db.Column(db.Integer, db.ForeignKey('vehicle.id'))
-    planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'))
+    character_id = db.Column(db.Integer, db.ForeignKey('character.id'), nullable=True)
+    vehicle_id = db.Column(db.Integer, db.ForeignKey('vehicle.id'), nullable=True)
+    planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))  # Cambié 'usuario_id' a 'user_id' para consistencia
 
     user = db.relationship("User", back_populates="favorites")
@@ -100,6 +100,7 @@ class Favourite(db.Model):
             "planet_id": self.planet_id,
             "user_id": self.user_id
         }
+
 
     def __repr__(self):
         return '<Favourite %r>' % self.id
