@@ -56,16 +56,12 @@ def create_user():
     db.session.commit()
     return jsonify(user.serialize()), 200
 
-@app.route("/user/<int:id>/delete", methods=["GET", "POST"])
+@app.route("/user/<int:id>/delete", methods=["DELETE"])
 def user_delete(id):
     user = db.get_or_404(User, id)
-
-    if request.method == "POST":
-        db.session.delete(user)
-        db.session.commit()
-        return redirect(url_for("get_user"))
-
-    return render_template("user/delete.html", user=user)
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({"message": "User deleted successfully"}), 200
 
 # Character endpoints
 @app.route('/character', methods=['GET'])
